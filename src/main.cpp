@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <open-celluloid.h>
+#include <HardwareSerial.h>
 
 //Serial.begin(115200);
 //using namespace TMC2660_n;
@@ -8,35 +9,12 @@
   OpenCelluloid upuaut;  
   TimerOne  timer1;
   const int  testValue = 666;
-
-//   shared_ptr<OpenCelluloid> upuaut(new OpenCelluloid);
-
-
-void triggerSensor(){
-    if(digitalRead(sensor) == false){
-    upuaut.boolGate = true;
-  }
-  else{
-    upuaut.boolGate = false;
-  }
-  if(upuaut.boolGate != upuaut.boolState){
-    upuaut.triggerCounter += 1;
-    upuaut.boolState = upuaut.boolGate;
-  }
-  if (upuaut.triggerCounter == 4){
-    upuaut.serial->write('0' + 0);
-    upuaut.triggerCounter = 0;
-  }
-};
-
+  int incomingByte = 0; // for incoming serial data
 
 
 void setup() {
-  
-  upuaut.setupSerial();
-
-  while(!upuaut.serial);
-	upuaut.serial->println("\nStart...");
+ 
+  Serial.begin(115200);
 
 	pinMode(enabPin, OUTPUT);
 	pinMode(stepPin, OUTPUT);
@@ -60,19 +38,37 @@ void setup() {
   upuaut.setup2130();
   upuaut.setupAccelStepper();
   upuaut.stepper.setCurrentPosition(0);
+ 
+  //timer1.initialize(200);
+  //timer1.attachInterrupt(triggerSensor);
+  //Serial.flush();
+ 
+  // while (!Serial) {
+  //   ; // wait for serial port to connect. Needed for native USB port only
+  // }
+  Serial.println("??");
+  Serial.println("This is the serial outside the class");
+  Serial.println(Serial.peek());
+  Serial.println(Serial.available());
+  upuaut.state = auto_end;
+  //upuaut.serialPrintln("This is a serial test");
 
-  upuaut.state = start_moving_forward;
-
-  
-  timer1.initialize(200);
-  upuaut.serial->println("Timer initialized");
-  timer1.attachInterrupt(triggerSensor);
-  upuaut.serial->println("End of setup");
+  //upuaut.serialAvailable();
 
 };
 
 void loop() {
 
+  // Serial.println("Loop");
+  // if (Serial.available() > 0) {
+  //   // read the incoming byte:
+  //   incomingByte = Serial.read();
+
+  //   // say what you got:
+  //   Serial.print("I received: ");
+  //   Serial.println(incomingByte, DEC);
+  // }
+
   upuaut.stateSwitch();
   upuaut.serialTask();
-};
+}

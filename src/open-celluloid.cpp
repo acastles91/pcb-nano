@@ -1,53 +1,10 @@
 #include "open-celluloid.h"
 
 
-void OpenCelluloid::setupSerial(){
 
-    serial->begin(115200);
-};
-
+//_________________________________________________
 void OpenCelluloid::setup2130() {
 	
-	//Software SPI
-    // driver.begin(); 			// Initiate pins and registeries
-	// driver.rms_current(600); 	// Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
-	// driver.stealthChop(1); 	// Enable extremely quiet stepping
-	
-	// digitalWrite(enabPin, LOW);
-
-	// Serial.print("DRV_STATUS=0b");
-	// Serial.println(driver.DRV_STATUS(), BIN);
-
-    //
-    //StallGuard
-
-    // driver.push();
-    // driver.toff(3);
-    // driver.tbl(1);
-    // driver.hysteresis_start(4);
-    // driver.hysteresis_end(-2);
-    // driver.rms_current(600); // mA
-    // driver.microsteps(16);
-    // driver.diag1_stall(1);
-    // driver.diag1_active_high(1);
-    // driver.coolstep_min_speed(0xFFFFF); // 20bit max
-    // driver.THIGH(0);
-    // driver.semin(5);
-    // driver.semax(2);
-    // driver.sedn(0b01);
-    // driver.sg_stall_value(STALL_VALUE);
-
-    // digitalWrite(enabPin, LOW);
-
-    //Accelstepper
-
-    //pinMode(chipSelect, OUTPUT);
-    //digitalWrite(chipSelect, HIGH);
-    // driver.begin();             // Initiate pins and registeries
-    // driver.rms_current(600);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
-    // driver.stealthChop(1);      // Enable extremely quiet stepping
-    // driver.stealth_autoscale(1);
-    // driver.microsteps(16);
 
     //TMCStepper - simple !! Works with hardware constructor, TMCStepper library
 
@@ -59,57 +16,17 @@ void OpenCelluloid::setup2130() {
     driver.microsteps(4);          // Set microsteps to 1/16th
 
     driver.en_pwm_mode(true);       // Toggle stealthChop on TMC2130/2160/5130/5160
-//driver.en_spreadCycle(false);   // Toggle spreadCycle on TMC2208/2209/2224
     driver.pwm_autoscale(true);     // Needed for stealthChop
-    //driver.irun(31);
-    //driver.ihold(25);
     driver.semin(5);
     driver.semax(2);
-    //TMCStepper - StallGuard
-
-    // driver.begin();
-    // driver.toff(4);
-    // driver.blank_time(24);
-    // driver.rms_current(400); // mA
-    // driver.microsteps(2);
-    // driver.TCOOLTHRS(0xFFFFF); // 20bit max
-    // driver.THIGH(0);
-    // driver.semin(5);
-    // driver.semax(2);
-    // driver.sedn(0b01);
-    // driver.sgt(STALL_VALUE);
-
-
-
 
 };
 
-//  void OpenCelluloid::setup2660(){
-
-// //   driver.begin();
-// //   driver.toff(4);
-// //   driver.blank_time(12);
-// //   driver.rms_current(1000); // mA
-// //   driver.microsteps(8);
-// //   driver.sfilt(true); // Improves SG readout.
-// //   driver.rdsel(0b01);
-// //   //driver.semin(2);
-// //   //driver.semax(10);
-// //   driver.sedn(0b01);
-// //   driver.sgt(STALL_VALUE);
-
-
-
-// };
-// OpenCelluloid::Opencelluloid(HardwareSerial *serial1){
-//     _HardSerial = serial1;
-// }
+//_________________________________________________
 void OpenCelluloid::accelerate(){
 
-  //bool test = false;
   int speedTest = 500;
     
-    if (!test){
         for(int i = 0; (speedTest * 3) - i == 500; i++){
 
             digitalWrite(stepPin, HIGH);
@@ -117,12 +34,10 @@ void OpenCelluloid::accelerate(){
             digitalWrite(stepPin, LOW);
             delayMicroseconds((speedTest * 3) - i);
         }
-        //test = true;
-    }
-
-
+    
 };
 
+//_________________________________________________
 void OpenCelluloid::moveMotor(){
 	//while(true){
 		//digitalWrite(enabPin, LOW);
@@ -136,15 +51,16 @@ void OpenCelluloid::moveMotor(){
     //}
 
 };
+
+//_________________________________________________
 void OpenCelluloid::moveMotorSlow() {
   oneFrameSlow();
 };
-
-
+//_________________________________________________
 bool OpenCelluloid::isAccelerated(){
 	return	accelerated;
 };
-
+//_________________________________________________
 void OpenCelluloid::setupAccelStepper(){
 
     stepper.setMaxSpeed(50*steps_per_mm); // 100mm/s @ 80 steps/mm
@@ -153,7 +69,7 @@ void OpenCelluloid::setupAccelStepper(){
     stepper.setPinsInverted(false, false, true);
     stepper.enableOutputs();
 };
-
+//_________________________________________________
 void OpenCelluloid::stepperTimer(){
   if (stepCount > 0) {
     if (stepState == 0) {
@@ -163,7 +79,7 @@ void OpenCelluloid::stepperTimer(){
     stepState = !stepState;
   }
 };
-
+//_________________________________________________
 void OpenCelluloid::homing(){
 
   digitalWrite(enabPin, LOW);
@@ -187,8 +103,6 @@ void OpenCelluloid::homing(){
       sum_gate += gate[i];
       //Serial.println(gate[i]);
     }
-    //Serial.println(sum_gate);
-
     if (sum_gate == 0) {
       gate_closed = false;
       continue;
@@ -228,7 +142,7 @@ void OpenCelluloid::homing(){
   gateOpen = true;
   moveMotorSlow();
 };
-
+//_________________________________________________
 void OpenCelluloid::checkTrigger(){
 
   if(gateOpen){
@@ -258,8 +172,7 @@ void OpenCelluloid::checkTrigger(){
   }
 };
 
-
-
+//_________________________________________________
 void OpenCelluloid::testMove(){
   digitalWrite(stepPin, HIGH);
   delayMicroseconds(500);
@@ -274,6 +187,7 @@ void OpenCelluloid::testMove(){
   }
 };
 
+//_________________________________________________
 void OpenCelluloid::readSensor(){
   serial->println(digitalRead(sensor));
 }
@@ -286,6 +200,7 @@ void OpenCelluloid::oneFrame() {
   }
 };
 
+//_________________________________________________
 void OpenCelluloid::oneFrameSlow() {
   for (int i = 0; i < frameRatio ; i ++) {
     digitalWrite(stepPin, HIGH);
@@ -295,24 +210,67 @@ void OpenCelluloid::oneFrameSlow() {
   }
 };
 
+//_________________________________________________
 void OpenCelluloid::oneHundredFrames() {
   for (int i = 0; i < 100; i ++) {
     oneFrame();
   }
 };
 
+//_________________________________________________
 void OpenCelluloid::serialFrames(){
     
   serial->write('0' + 0);
   delay(1000);
 };
 
-void OpenCelluloid::serialTask() {
+//_________________________________________________
+void OpenCelluloid::triggerSensor(){
+    if(digitalRead(sensor) == false){
+    boolGate = true;
+  }
+  else{
+    boolGate = false;
+  }
+  if(boolGate != boolState){
+    triggerCounter += 1;
+    boolState = boolGate;
+  }
+  if (triggerCounter == 4){
+    Serial.write('0' + 0);
+    triggerCounter = 0;
+  }
+};
 
+//_________________________________________________
+void OpenCelluloid::setSerial(Stream *streamObject){
+  _streamRef = streamObject;
+};
+//_________________________________________________
+void OpenCelluloid::serialPrintln(char *somePrintln){
+  _streamRef->println(somePrintln);
+};
+//_________________________________________________
+void OpenCelluloid::serialWrite(char *someWrite){
+  _streamRef->write(someWrite);
+};
+//_________________________________________________
+int OpenCelluloid::serialRead(void){
+  _streamRef->read();
+};
+//_________________________________________________
+int OpenCelluloid::serialAvailable(){
+  _streamRef->available();
+  _streamRef->println("Serial inside class is available");
+};
+//_________________________________________________
+void OpenCelluloid::serialTask() {
+  Serial.println("Begin of serial task");
+  //serialPrintln("Begin of Serial Task");
   switch (state) {
     case auto_reset:
       homing();
-      //Serial.println("Homing executed2");
+      Serial.println("Homing executed");
       state = auto_end;
       //Serial.println(state);
       break;
@@ -387,121 +345,45 @@ void OpenCelluloid::serialTask() {
       break;
     
     case test:
-      //testMove();
       readSensor();
       break;
      
   }
 };
-
-// void OpenCelluloid::serialTask() {
-
-//   switch (upuaut.state) {
-//     case auto_reset:
-//       upuaut.homing();
-//       //Serial.println("Homing executed2");
-//       upuaut.state = auto_end;
-//       //Serial.println(state);
-//       break;
-
-//     case start_moving_forward:
-//       if ( !upuaut.isMoving) {
-//         upuaut.homing();
-//         upuaut.isMoving = true;
-//       } else {
-//         upuaut.state = keep_moving;
-//         upuaut.isMoving = true;
-//       }
-//       digitalWrite(dirPin, LOW);
-//       delayMicroseconds(10000);
-//       break;
-
-//     case start_moving_backward:
-//       if ( !upuaut.isMoving) {
-//         upuaut.homing();
-//         upuaut.isMoving = true;
-//       } else {
-//         upuaut.state = keep_moving;
-//         upuaut.isMoving = true;
-//       }
-//       digitalWrite(dirPin, HIGH);
-//       delayMicroseconds(10000);
-//       break;
-
-//     case keep_moving:
-//       upuaut.home_position = false;
-//       upuaut.moveMotor();
-//       //serialFrames();
-//       upuaut.state = keep_moving;
-//       break;
-
-//     case keep_moving_slow:
-//       upuaut.home_position = false;
-//       upuaut.moveMotorSlow();
-//       upuaut.state = keep_moving_slow;
-//       break;
-
-//     case stoping:
-//       digitalWrite(stepPin, LOW);
-//       digitalWrite(enabPin, HIGH);
-//       upuaut.state = auto_end;
-//       upuaut.isMoving = false;
-//       digitalWrite(enabPin, LOW);
-//       break;
-
-//     case auto_end:
-//       upuaut.home_position = false;
-//       break;
-
-//     case one_frame:
-//       //oneFrame();
-//       upuaut.oneFrameSlow();
-//       upuaut.state = auto_end;
-//       break;
-      
-//     case loading:
-//       if ( !upuaut.isMoving) {
-//         upuaut.isMoving = true;
-//       } else {
-//         upuaut.state = keep_moving_slow;
-//         upuaut.isMoving = true;
-//       }
-//       digitalWrite(dirPin, LOW);
-//       break;
-//     case hundred_frames:
-//       upuaut.oneHundredFrames();
-//       upuaut.state = auto_end;
-//       break;
-    
-//     case test:
-//       //testMove();
-//       upuaut.readSensor();
-//       break;
-     
-//   }
-// };
-
+//_________________________________________________
 void OpenCelluloid::stateSwitch() {
-    serial->println("Begin of OpenCelluloid::stateSwitch()");
-    serial->println("Serial works, doesn't seem to read variables from Upuaut");
-    serial->println(state);
+    Serial.println("Begin of OpenCelluloid::stateSwitch()");
+    //serialPrintln("Begin of OpenCelluloid::stateSwitch()");
+    //serialPrintln(state);
     //Serial.println("Start state: " + upuaut.state);
-    if (serial->available()) {
-        serial->println("Serial available");
-        uint8_t code = serial->read();
-        //Serial.println(code);
+    //while(!Serial){
+    if (Serial.available() >= 0) {
+        Serial.println(state);
+        Serial.println("Serial available");
+        uint8_t code = Serial.read();
+        Serial.println(code);
+        Serial.println("??");
         switch (code) {
-        case 'a':
+        case 97:
+
             state = auto_reset;
+            Serial.print("I received: ");
+            Serial.println(code);
             break;
-        case 'b':
+        case 98:
             state = start_moving_forward;
+            Serial.print("I received: ");
+            Serial.println(code);
             break;
-        case 'c':
-           state = start_moving_backward;
+        case 99:
+            state = start_moving_backward;           
+            Serial.print("I received: ");
+            Serial.println(code);
             break;
         case 'd':
             state = stoping;
+            Serial.print("I received: ");
+            Serial.println(code);
             break;
         case 'e':
             state = one_frame;
@@ -529,89 +411,10 @@ void OpenCelluloid::stateSwitch() {
             state = auto_reset;
             break;
         }
-        serial->println("End state: " + state);
+        Serial.print("End state: ");
+        Serial.println(state);
         }
-        else{
-            serial->println("Serial not available");
-        }
-
+        // else{
+        //     Serial.println("Serial not available");
+        // }
     };
-
-
-// void OpenCelluloid::stateSwitch() {
-//     Serial.println("Begin of stateSwitch()");
-//     Serial.println("Serial works, doesn't seem to read variables from Upuaut");
-//     Serial.println("Printing universal char: " + upuaut.state);
-//     //Serial.println("Start state: " + upuaut.state);
-//     if (Serial.available()) {
-//         Serial.println("Serial available");
-//         uint8_t code = Serial.read();
-//         //Serial.println(code);
-//         switch (code) {
-//         case 'a':
-//             upuaut.state = auto_reset;
-//             break;
-//         case 'b':
-//             upuaut.state = start_moving_forward;
-//             break;
-//         case 'c':
-//             upuaut.state = start_moving_backward;
-//             break;
-//         case 'd':
-//             upuaut.state = stoping;
-//             break;
-//         case 'e':
-//             upuaut.state = one_frame;
-//             break;
-//         case 'f':
-//             upuaut.state = hundred_frames;
-//             break;
-//         case 'g':
-//             upuaut.state = loading;
-//             break;
-//         case 'h':
-//             upuaut.state = test;
-//             break;
-            
-//         case '0':
-//             upuaut.state = stoping;
-//             break;
-//             case '1':
-//             upuaut.state = start_moving_forward;
-//             break;
-//             case '2':
-//             upuaut.state = start_moving_backward;
-//             break;
-//             case '4':
-//             upuaut.state = auto_reset;
-//             break;
-//         }
-//         Serial.println("End state: " + upuaut.state);
-
-//     }
-// };
-
-
-//unsigned long forwardDelay = 0;
-//int forwardInterval = 10000
-
-// static void OpenCelluloid::triggerSensor(){
-//     if(digitalRead(sensor) == false){
-//     boolGate = true;
-//   }
-//   else{
-//     boolGate = false;
-//   }
-//   if(boolGate != boolState){
-//     triggerCounter += 1;
-//     boolState = boolGate;
-//   }
-//   if (triggerCounter == 4){
-//     Serial.write('0' + 0);
-//     triggerCounter = 0;
-//   }
-// };
-
-
-
-

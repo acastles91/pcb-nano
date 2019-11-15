@@ -1,38 +1,69 @@
 #pragma once
 
 
-#define startStop   2
-#define stepPin     3
-#define dirPin      4
-#define channel6    5
-#define channelB    6
-#define enabPin     7
-#define dirSwitch   8
-#define soundTrig   9
-#define chipSelect  10
-#define mosiSdi     11
-#define misoSdo     12
-#define clk         13
-#define led         A3
-#define potSpeed    A4
+// #define startStop   2
+// #define stepPin     3
+// #define dirPin      4
+// #define channel6    5
+// #define channelB    6
+// #define enabPin     7
+// #define dirSwitch   8
+// #define soundTrig   9
+// #define chipSelect  10
+// #define mosiSdi     11
+// #define misoSdo     12
+// #define clk         13
+// #define led         A3
+// #define potSpeed    A4
+// #define encoButton  A5
+// #define sensor      A7
+
+// #define auto_reset              'a'
+// #define start_moving_forward    'b'
+// #define start_moving_backward   'c'
+// #define keep_moving             'd'
+// #define stoping                 'e'
+// #define auto_end                'f'
+// #define one_frame               'g'
+// #define hundred_frames          'h'
+// #define loading                 'i'
+// #define keep_moving_slow        'j'
+// #define test                    'k'
+
+
+#define auto_reset              0
+#define start_moving_forward    1
+#define start_moving_backward   2
+#define keep_moving             3
+#define stoping                 4
+#define auto_end                5
+#define one_frame               6
+#define hundred_frames          7
+#define loading                 8
+#define keep_moving_slow        9
+#define test                    10
+
+const int startStop = 2;
+const int stepPin = 3;
+const int dirPin = 4;
+const int channel6 = 5;
+const int channelB = 6;
+const int enabPin = 7;
+const int dirSwitch = 8;
+const int soundTrig = 9;
+const int chipSelect = 10;
+const int mosiSdi = 11;
+const int misoSdo = 12;
+const int clk = 13;
+
+
+#define led  A3
+#define potSpeed  A4
 #define encoButton  A5
-#define sensor      A7
+#define sensor  A7
 
-#define auto_reset              'a'
-#define start_moving_forward    'b'
-#define start_moving_backward   'c'
-#define keep_moving             'd'
-#define stoping                 'e'
-#define auto_end                'f'
-#define one_frame               'g'
-#define hundred_frames          'h'
-#define loading                 'i'
-#define keep_moving_slow        'j'
-#define test                    'k'
-
-
-#define STEP_PORT     3
-#define STEP_BIT_POS  3
+// #define STEP_PORT     3
+// #define STEP_BIT_POS  3
 
 #define STALL_VALUE 15
 #define R_SENSE 0.1 // Match to your driver
@@ -52,6 +83,10 @@
 #include <AccelStepper.h>
 #include <TimerOne.h>
 #include <HardwareSerial.h>
+#include <Stream.h>
+
+//HardwareSerial Serial;
+
 
 
 class OpenCelluloid{
@@ -95,10 +130,17 @@ class OpenCelluloid{
         volatile bool boolState = !digitalRead(sensor);
 
         volatile bool home_position = false;
-        volatile uint8_t state = auto_end;
+        volatile char state = auto_reset;
+
+        
 
         uint8_t doFullRotation = 0;
         int stepCount = 10000;
+
+        // const int led = A3;
+        // const int potSpeed = A4;
+        // const int encoButton = A5;
+        // const int sensor = A7;
 
         //TMC2130Stepper driver  = TMC2130Stepper(enabPin, dirPin, stepPin, chipSelect, mosiSdi, misoSdo, clk);
         //TMC2130Stepper driver  = TMC2130Stepper(chipSelect, mosiSdi, misoSdo, clk);
@@ -118,7 +160,6 @@ class OpenCelluloid{
         void moveMotor();
         void moveMotorSlow();
         void setup2130();
-        void setupSerial();
         //void setup2660();
         void setupAccelStepper();
         bool isAccelerated();
@@ -134,7 +175,16 @@ class OpenCelluloid{
         void serialFrames();
         void serialTask();
         void stateSwitch();
+        void triggerSensor();
+
+        void setSerial(Stream *streamObject);
+        void serialPrintln(char *somePrintln);
+        void serialWrite(char *someWrite);
+        int serialRead(void);
+        int serialAvailable(void);
 
     private:
+
+        Stream *_streamRef;
 
 };
